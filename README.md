@@ -12,6 +12,6 @@ Program ini dibuat karena banyak perpustakaan kecil masih menggunakan pencatatan
 Manfaat program ini memudahkan petugas perpustakaan dalam mencatat inventaris buku, memantau stok, mengelola peminjaman, dan menyimpan data secara permanen dengan sistem file otomatis.
 Dengan program ini, proses administrasi perpustakaan menjadi lebih cepat, akurat, dan terorganisir, serta dapat membantu meningkatkan kualitas layanan perpustakaan kepada pengunjung.
 
-Link Dokumentasi Drive: 
+Link Dokumentasi Drive: https://drive.google.com/drive/folders/1Uh_WpvjQtaJUsgsaFDLgey7kxB5JrcAn?usp=drive_link
 
 Link Youtube: https://youtu.be/OTpODpWCT-8?si=MRkiuQyZyBXpk3cB
