@@ -23,21 +23,24 @@ var
   fileBuku : file of TBuku;
 
 {================ FILE HANDLING ================}
-
 procedure LoadData;
 var
   i : integer;
 begin
   assign(fileBuku, FILE_NAME);
-  {$I-} reset(fileBuku); {$I+}
+  {$I-} reset(fileBuku); {$I+}  {Matikan error checking sementara}
 
-  if IOResult <> 0 then
+  {Cek apakah file berhasil dibuka}
+  if IOResult <> 0 then  
   begin
-    jumlah := 0;
+    jumlah := 0;  {Jika file belum ada, set jumlah = 0}
     exit;
   end;
 
+  {Hitung jumlah record dalam file}
   jumlah := filesize(fileBuku);
+  
+  {Baca semua data dari file ke array}
   for i := 1 to jumlah do
     read(fileBuku, buku[i]);
 
@@ -49,8 +52,9 @@ var
   i : integer;
 begin
   assign(fileBuku, FILE_NAME);
-  rewrite(fileBuku);
+  rewrite(fileBuku);  {Buat file baru atau overwrite}
 
+  {Simpan semua data dari array ke file}
   for i := 1 to jumlah do
     write(fileBuku, buku[i]);
 
@@ -58,7 +62,6 @@ begin
 end;
 
 {================ PROCEDURE & FUNCTION ================}
-
 procedure TambahBuku;
 var
   i, tambah : integer;
@@ -67,6 +70,7 @@ begin
   write('Masukkan jumlah buku yang ingin ditambahkan: ');
   readln(tambah);
 
+  {Cek apakah masih ada kapasitas}
   if jumlah + tambah > MAX then
   begin
     writeln('Kapasitas buku penuh!');
@@ -74,6 +78,7 @@ begin
     exit;
   end;
 
+  {Input data buku mulai dari index setelah data terakhir}
   for i := jumlah + 1 to jumlah + tambah do
   begin
     writeln('Data Buku ke-', i);
@@ -82,12 +87,14 @@ begin
     write('Penulis     : '); readln(buku[i].penulis);
     write('Stok        : '); readln(buku[i].stok);
 
+    {Set default value untuk buku baru}
     buku[i].peminjam := '-';
     buku[i].kembali  := '-';
   end;
 
+  {Update jumlah total buku}
   jumlah := jumlah + tambah;
-  SaveData;
+  SaveData;  {Simpan perubahan ke file}
 end;
 
 procedure TampilBuku;
@@ -98,10 +105,12 @@ begin
   writeln('DAFTAR BUKU PERPUSTAKAAN');
   writeln('========================');
 
+  {Validasi apakah ada data}
   if jumlah = 0 then
     writeln('Belum ada data buku')
   else
   begin
+    {Loop untuk menampilkan semua buku}
     for i := 1 to jumlah do
     begin
       writeln('Kode    : ', buku[i].kode);
@@ -109,10 +118,12 @@ begin
       writeln('Penulis : ', buku[i].penulis);
       writeln('Stok    : ', buku[i].stok);
 
+      {Tampilkan status berdasarkan stok}
       if buku[i].stok > 0 then
         writeln('Status  : Tersedia')
       else
       begin
+        {Jika stok 0, tampilkan info peminjam}
         writeln('Status  : Dipinjam');
         writeln('Peminjam       : ', buku[i].peminjam);
         writeln('Jadwal Kembali : ', buku[i].kembali);
@@ -128,12 +139,14 @@ function CariBuku(kodeCari : string): integer;
 var
   i : integer;
 begin
-  CariBuku := 0;
+  CariBuku := 0;  {Default return 0 jika tidak ditemukan}
+  
+  {Loop mencari buku berdasarkan kode}
   for i := 1 to jumlah do
     if buku[i].kode = kodeCari then
     begin
-      CariBuku := i;
-      exit;
+      CariBuku := i;  {Return index array jika ditemukan}
+      exit;  {Keluar dari function segera setelah ketemu}
     end;
 end;
 
@@ -146,19 +159,23 @@ begin
   write('Masukkan kode buku yang ingin dipinjam: ');
   readln(kodeCari);
 
+  {Cari buku berdasarkan kode}
   idx := CariBuku(kodeCari);
 
+  {Validasi hasil pencarian}
   if idx = 0 then
     writeln('Buku tidak ditemukan')
   else if buku[idx].stok > 0 then
   begin
+    {Input data peminjam}
     write('Nama Peminjam       : ');
     readln(buku[idx].peminjam);
     write('Jadwal Pengembalian : ');
     readln(buku[idx].kembali);
 
+    {Kurangi stok buku}
     buku[idx].stok := buku[idx].stok - 1;
-    SaveData;
+    SaveData;  {Simpan perubahan ke file}
     writeln('Buku berhasil dipinjam');
   end
   else
@@ -176,16 +193,19 @@ begin
   write('Masukkan kode buku yang ingin dikembalikan: ');
   readln(kodeCari);
 
+  {Cari buku berdasarkan kode}
   idx := CariBuku(kodeCari);
 
+  {Validasi hasil pencarian}
   if idx = 0 then
     writeln('Buku tidak ditemukan')
   else
   begin
+    {Tambah stok dan reset data peminjam}
     buku[idx].stok := buku[idx].stok + 1;
-    buku[idx].peminjam := '-';
-    buku[idx].kembali  := '-';
-    SaveData;
+    buku[idx].peminjam := '-';  {Hapus nama peminjam}
+    buku[idx].kembali  := '-';  {Hapus jadwal kembali}
+    SaveData;  {Simpan perubahan ke file}
     writeln('Buku berhasil dikembalikan');
   end;
 
@@ -204,13 +224,14 @@ begin
   write('Pilih menu [1-5]: ');
   readln(pilih);
 
+  {Panggil procedure sesuai pilihan}
   case pilih of
     1 : TambahBuku;
     2 : TampilBuku;
     3 : PinjamBuku;
     4 : KembalikanBuku;
     5 : begin
-          SaveData;
+          SaveData;  {Pastikan data tersimpan sebelum keluar}
           writeln('Data disimpan. Terima kasih');
         end;
   else
@@ -220,8 +241,8 @@ end;
 
 {================ PROGRAM UTAMA ================}
 begin
-  LoadData;
+  LoadData;  {Load data dari file saat program dimulai}
   repeat
-    Menu;
-  until pilih = 5;
+    Menu;  {Tampilkan menu berulang}
+  until pilih = 5;  {Loop sampai user pilih keluar}
 end.
